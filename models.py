@@ -30,3 +30,12 @@ class Review(db.Model):
 
     def __str__(self):
         return f"{self.user_name}: {self.review_date:%x}"
+
+class ImageUpload(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    filename = db.Column(db.String(255), nullable=False)
+    username = db.Column(db.String(100), nullable=False)
+    timestamp = db.Column(db.String(50), nullable=False)
+    red_count = db.Column(db.Integer, nullable=False)
+    green_count = db.Column(db.Integer, nullable=False)
+    blue_count = db.Column(db.Integer, nullable=False)
