@@ -1,8 +1,9 @@
 import os
 from datetime import datetime
 
-from flask import Flask, redirect, render_template, request, send_from_directory, url_for
+from flask import Flask, redirect, render_template, request, send_from_directory, url_for, jsonify
 from flask_migrate import Migrate
+from models import Restaurant, Review, ImageUpload
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf.csrf import CSRFProtect
 
@@ -118,6 +119,49 @@ def utility_processor():
 def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static'),
                                'favicon.ico', mimetype='image/vnd.microsoft.icon')
+
+@app.route('/api/upload', methods=['POST'])
+@csrf.exempt
+def upload():
+    try:
+        data = request.get_json()
+        
+        # Validate required fields
+        required_fields = ['filename', 'username', 'timestamp', 'red_count', 'green_count', 'blue_count']
+        if not all(field in data for field in required_fields):
+            return jsonify({'error': 'Missing required fields'}), 400
+
+        # Create a new ImageUpload record
+        upload = ImageUpload(
+            filename=data['filename'],
+            username=data['username'],
+            timestamp=data['timestamp'],
+            red_count=data['red_count'],
+            green_count=data['green_count'],
+            blue_count=data['blue_count']
+        )
+        
+        # Save to database
+        db.session.add(upload)
+        db.session.commit()
+        
+        return jsonify({
+            'status': 'success',
+            'message': 'Data uploaded successfully',
+            'data': data
+        }), 200
+    
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/uploads', methods=['GET'])
+def list_uploads():
+    print('Request for uploads page received')
+    uploads = ImageUpload.query.all()
+    return render_template('uploads.html', uploads=uploads)
+
 
 if __name__ == '__main__':
     app.run()
