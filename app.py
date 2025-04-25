@@ -5,7 +5,6 @@ from flask import Flask, redirect, render_template, request, send_from_directory
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf.csrf import CSRFProtect
-from models import ImageUpload  # Añade esto con los otros imports
 
 
 app = Flask(__name__, static_folder='static')
@@ -97,47 +96,6 @@ def add_review(id):
         db.session.commit()
 
     return redirect(url_for('details', id=id))
-
-@app.route('/api/add', methods=['POST'])
-@csrf.exempt  # Exenta de CSRF para esta API
-def add_image_data():
-    try:
-        data = request.get_json()
-        
-        # Validación básica de los campos requeridos
-        required_fields = ['filename', 'username', 'timestamp', 'red_count', 'green_count', 'blue_count']
-        if not all(field in data for field in required_fields):
-            return jsonify({
-                'status': 'error',
-                'message': 'Faltan campos requeridos',
-                'required_fields': required_fields
-            }), 400
-        
-        # Crear nueva entrada en la base de datos
-        new_upload = ImageUpload(
-            filename=data['filename'],
-            username=data['username'],
-            timestamp=data['timestamp'],  # Ya es string según tu modelo
-            red_count=data['red_count'],
-            green_count=data['green_count'],
-            blue_count=data['blue_count']
-        )
-        
-        db.session.add(new_upload)
-        db.session.commit()
-        
-        return jsonify({
-            'status': 'success',
-            'message': 'Datos de imagen guardados correctamente',
-            'id': new_upload.id
-        }), 201
-        
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({
-            'status': 'error',
-            'message': f'Error al guardar los datos: {str(e)}'
-        }), 500
 
 @app.context_processor
 def utility_processor():
