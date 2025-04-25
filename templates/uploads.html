@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Image Uploads{% endblock %}
+{% block head %}
+    {{ super() }}
+    <style>
+        body {
+            min-height: 75rem;
+            padding-top: 4.5rem;
+        }
+    </style>
+{% endblock %}
+{% block content %}
+    <h1>Image Uploads</h1>
+    {% if uploads %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Filename</th>
+                    <th>Username</th>
+                    <th>Timestamp</th>
+                    <th>Red Count</th>
+                    <th>Green Count</th>
+                    <th>Blue Count</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for upload in uploads %}
+                    <tr>
+                        <td>{{ upload.filename }}</td>
+                        <td>{{ upload.username }}</td>
+                        <td>{{ upload.timestamp }}</td>
+                        <td>{{ upload.red_count }}</td>
+                        <td>{{ upload.green_count }}</td>
+                        <td>{{ upload.blue_count }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No uploads yet.</p>
+    {% endif %}
+{% endblock %}
