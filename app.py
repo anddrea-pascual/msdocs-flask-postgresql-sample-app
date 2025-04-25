@@ -32,7 +32,7 @@ db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
 # The import must be done after db initialization due to circular import issue
-from models import Restaurant, Review
+from models import Restaurant, Review, ImageUpload
 
 @app.route('/', methods=['GET'])
 def index():
@@ -72,6 +72,8 @@ def add_restaurant():
         db.session.commit()
 
         return redirect(url_for('details', id=restaurant.id))
+    
+
 
 @app.route('/review/<int:id>', methods=['POST'])
 @csrf.exempt
@@ -96,6 +98,36 @@ def add_review(id):
         db.session.commit()
 
     return redirect(url_for('details', id=id))
+
+@app.route('/image_upload', methods=['POST'])
+@csrf.exempt
+def add_image_upload():
+    try:
+        filename = request.values.get('filename')
+        red_pixels = int(request.values.get('redPixels', 0))
+        green_pixels = int(request.values.get('greenPixels', 0))
+        blue_pixels = int(request.values.get('bluePixels', 0))
+        username = request.values.get('username')
+
+        if not filename or not username:
+            raise KeyError("Missing required fields")
+    except (KeyError, ValueError) as e:
+        # Redisplay the form with an error message
+        return render_template('add_image_upload.html', {
+            'error_message': f"Error adding image upload: {str(e)}",
+        })
+    else:
+        image_upload = ImageUpload()
+        image_upload.filename = filename
+        image_upload.red_pixels = red_pixels
+        image_upload.green_pixels = green_pixels
+        image_upload.blue_pixels = blue_pixels
+        image_upload.username = username
+
+        db.session.add(image_upload)
+        db.session.commit()
+
+        return redirect(url_for('index'))
 
 @app.context_processor
 def utility_processor():

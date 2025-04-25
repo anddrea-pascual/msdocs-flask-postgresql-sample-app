@@ -30,3 +30,12 @@ class Review(db.Model):
 
     def __str__(self):
         return f"{self.user_name}: {self.review_date:%x}"
+
+class ImageUpload(db.Model):
+    __tablename__ = 'image_upload'  # Nombre explícito de la tabla en la base de datos
+    id = db.Column(db.Integer, primary_key=True)
+    filename = db.Column(db.String(255), nullable=False)
+    red_pixels = db.Column(db.Integer, nullable=False, default=0)
+    green_pixels = db.Column(db.Integer, nullable=False, default=0)
+    blue_pixels = db.Column(db.Integer, nullable=False, default=0)
+    username = db.Column(db.String(255), nullable=False)
