@@ -51,7 +51,7 @@ def create_restaurant():
     print('Request for add restaurant page received')
     return render_template('create_restaurant.html')
 
-@app.route('restaurants/add', methods=['POST'])
+@app.route('/add', methods=['POST'])
 @csrf.exempt
 def add_restaurant():
     try:
