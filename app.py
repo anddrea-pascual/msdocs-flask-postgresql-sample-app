@@ -33,7 +33,25 @@ migrate = Migrate(app, db)
 
 # The import must be done after db initialization due to circular import issue
 from models import Restaurant, Review, ImageUpload
+from flask import jsonify
 
+@app.route('/api/images', methods=['GET'])
+def get_images_api():
+    try:
+        image_uploads = ImageUpload.query.order_by(ImageUpload.timestamp.desc()).all()
+        images = [
+            {
+                'filename': image.filename,
+                'red_pixels': image.red_pixels,
+                'green_pixels': image.green_pixels,
+                'blue_pixels': image.blue_pixels,
+                'timestamp': image.timestamp.isoformat(),  # Convertir a string ISO
+                'username': image.username
+            } for image in image_uploads
+        ]
+        return jsonify(images)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 @app.route('/', methods=['GET'])
 def index():
     print('Request for index page received')
