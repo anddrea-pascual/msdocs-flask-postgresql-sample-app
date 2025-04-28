@@ -1,6 +1,6 @@
 from sqlalchemy import Column, DateTime, ForeignKey, Integer, String
 from sqlalchemy.orm import validates
-
+from datetime import datetime
 from app import db
 
 
@@ -39,3 +39,4 @@ class ImageUpload(db.Model):
     green_pixels = db.Column(db.Integer, nullable=False, default=0)
     blue_pixels = db.Column(db.Integer, nullable=False, default=0)
     username = db.Column(db.String(255), nullable=False)
+    timestamp = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
