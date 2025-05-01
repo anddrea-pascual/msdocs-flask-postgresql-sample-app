@@ -1,6 +1,5 @@
 import os
 from datetime import datetime
-import pytz
 
 from flask import Flask, redirect, render_template, request, send_from_directory, url_for, jsonify
 from flask_migrate import Migrate
@@ -73,9 +72,9 @@ def create_restaurant():
 @csrf.exempt
 def add_restaurant():
     try:
-        name = request.values.get('restaurant_name')
-        street_address = request.values.get('street_address')
-        description = request.values.get('description')
+        name = request.form.get('restaurant_name')
+        street_address = request.form.get('street_address')
+        description = request.form.get('description')
         if not all([name, street_address, description]):
             raise ValueError("You must include a restaurant name, address, and description")
     except (ValueError, KeyError) as e:
@@ -96,9 +95,9 @@ def add_restaurant():
 @csrf.exempt
 def add_review(id):
     try:
-        user_name = request.values.get('user_name')
-        rating = request.values.get('rating')
-        review_text = request.values.get('review_text')
+        user_name = request.form.get('user_name')
+        rating = request.form.get('rating')
+        review_text = request.form.get('review_text')
         if not all([user_name, rating, review_text]):
             raise ValueError("You must include a user name, rating, and review text")
         rating = int(rating)
@@ -109,7 +108,7 @@ def add_review(id):
     else:
         review = Review(
             restaurant=id,
-            review_date=datetime.now(pytz.UTC),
+            review_date=datetime.now(),
             user_name=user_name,
             rating=rating,
             review_text=review_text
@@ -141,8 +140,6 @@ def add_imageUpload():
         # Parsear el timestamp
         try:
             timestamp = datetime.strptime(timestamp_str, "%Y-%m-%dT%H:%M:%S")
-            # Hacer el timestamp "timezone-aware"
-            timestamp = timestamp.replace(tzinfo=pytz.UTC)
         except ValueError as e:
             raise ValueError(f"Invalid timestamp format. Expected 'YYYY-MM-DDTHH:MM:SS', got '{timestamp_str}'")
 
