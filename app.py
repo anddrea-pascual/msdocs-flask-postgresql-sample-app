@@ -141,6 +141,9 @@ def add_imageUpload():
         image_Upload.green_pixels = int(green_pixels)
         image_Upload.blue_pixels = int(blue_pixels)
         image_Upload.username = username
+        
+        image_Upload.timestamp = datetime.strptime(request.values.get('timestamp'), "%Y-%m-%dT%H:%M:%S")
+
 
         db.session.add(image_Upload)
         db.session.commit()
