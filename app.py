@@ -117,32 +117,32 @@ def add_review(id):
 
     return redirect(url_for('details', id=id))
 
-@app.route('/image_upload', methods=['POST'])
+@app.route('/add_imageUpload', methods=['POST'])
 @csrf.exempt
-def add_image_upload():
+def add_imageUpload():
     try:
         filename = request.values.get('filename')
-        red_pixels = int(request.values.get('redPixels', 0))
-        green_pixels = int(request.values.get('greenPixels', 0))
-        blue_pixels = int(request.values.get('bluePixels', 0))
+        red_pixels = int(request.values.get('redPixels'))
+        green_pixels = int(request.values.get('greenPixels'))
+        blue_pixels = int(request.values.get('bluePixels'))
         username = request.values.get('username')
 
         if not filename or not username:
             raise KeyError("Missing required fields")
-    except (KeyError, ValueError) as e:
+    except (KeyError) as e:
         # Redisplay the form with an error message
-        return render_template('add_image_upload.html', {
+        return render_template('add_imageUpload.html', {
             'error_message': f"Error adding image upload: {str(e)}",
         })
     else:
-        image_upload = ImageUpload()
-        image_upload.filename = filename
-        image_upload.red_pixels = red_pixels
-        image_upload.green_pixels = green_pixels
-        image_upload.blue_pixels = blue_pixels
-        image_upload.username = username
+        image_Upload = ImageUpload()
+        image_Upload.filename = filename
+        image_Upload.red_pixels = int(red_pixels)
+        image_Upload.green_pixels = int(green_pixels)
+        image_Upload.blue_pixels = int(blue_pixels)
+        image_Upload.username = username
 
-        db.session.add(image_upload)
+        db.session.add(image_Upload)
         db.session.commit()
 
         return redirect(url_for('index'))
