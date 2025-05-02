@@ -57,6 +57,66 @@ def index():
     restaurants = Restaurant.query.all()
     return render_template('index.html', restaurants=restaurants)
 
+@app.route('/<int:id>', methods=['GET'])
+def details(id):
+    restaurant = Restaurant.query.where(Restaurant.id == id).first()
+    reviews = Review.query.where(Review.restaurant == id)
+    return render_template('details.html', restaurant=restaurant, reviews=reviews)
+
+@app.route('/create', methods=['GET'])
+def create_restaurant():
+    print('Request for add restaurant page received')
+    return render_template('create_restaurant.html')
+
+@app.route('/add', methods=['POST'])
+@csrf.exempt
+def add_restaurant():
+    try:
+        name = request.form.get('restaurant_name')
+        street_address = request.form.get('street_address')
+        description = request.form.get('description')
+        if not all([name, street_address, description]):
+            raise ValueError("You must include a restaurant name, address, and description")
+    except (ValueError, KeyError) as e:
+        return render_template('create_restaurant.html', {
+            'error_message': str(e)
+        })
+    else:
+        restaurant = Restaurant(
+            name=name,
+            street_address=street_address,
+            description=description
+        )
+        db.session.add(restaurant)
+        db.session.commit()
+        return redirect(url_for('details', id=restaurant.id))
+
+@app.route('/review/<int:id>', methods=['POST'])
+@csrf.exempt
+def add_review(id):
+    try:
+        user_name = request.form.get('user_name')
+        rating = request.form.get('rating')
+        review_text = request.form.get('review_text')
+        if not all([user_name, rating, review_text]):
+            raise ValueError("You must include a user name, rating, and review text")
+        rating = int(rating)
+    except (ValueError, KeyError, TypeError) as e:
+        return render_template('add_review.html', {
+            'error_message': f"Error adding review: {str(e)}"
+        })
+    else:
+        review = Review(
+            restaurant=id,
+            review_date=datetime.now(),
+            user_name=user_name,
+            rating=rating,
+            review_text=review_text
+        )
+        db.session.add(review)
+        db.session.commit()
+        return redirect(url_for('details', id=id))
+
 @app.route('/add_imageUpload', methods=['POST'])
 @csrf.exempt
 def add_imageUpload():
@@ -106,6 +166,19 @@ def add_imageUpload():
             'error_message': f"Error adding image upload: {str(e)}"
         })
 
+@app.context_processor
+def utility_processor():
+    def star_rating(id):
+        reviews = Review.query.where(Review.restaurant == id)
+        ratings = []
+        review_count = 0
+        for review in reviews:
+            ratings.append(review.rating)
+            review_count += 1
+        avg_rating = sum(ratings) / len(ratings) if ratings else 0
+        stars_percent = round((avg_rating / 5.0) * 100) if review_count > 0 else 0
+        return {'avg_rating': avg_rating, 'review_count': review_count, 'stars_percent': stars_percent}
+    return dict(star_rating=star_rating)
 
 @app.route('/favicon.ico')
 def favicon():
